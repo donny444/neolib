@@ -44,6 +44,35 @@ func SetupRoutes(path string) {
 	http.Handle(fmt.Sprinf("%s/%s", path, libraryPath), CorsMiddleware(libraryHandler))
 }
 
+func handleBook(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		getBooks(w, r)
+		return
+	case http.MethodPost:
+		createBook(w, r)
+		return
+	case http.MethodPut:
+		updateBook(w, r)
+		return
+	case http.MethodDelete:
+		deleteBook(w, r)
+		return
+	}
+}
+
+func handleLibrary(w http.ResponseWriter, r *http.Request) {
+}
+
+func getBooks(w http.ResponseWriter, r *http.Request) {
+	books, err := database.QueryContext(ctx, "SELECT * FROM books")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer books.Close()
+	fmt.Println(books)
+}
+
 func main() {
 	SetupDatabase()
 	SetupRoutes(basePath)
