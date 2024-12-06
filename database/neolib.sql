@@ -30,13 +30,14 @@ SET time_zone = "+00:00";
 CREATE TABLE `books` (
   `uuid` char(36) NOT NULL,
   `title` varchar(255) NOT NULL,
-  `publisher` varchar(255) NOT NULL,
-  `category` varchar(255) NOT NULL,
-  `author` varchar(255) NOT NULL,
-  `page` smallint(5) UNSIGNED NOT NULL,
-  `language` varchar(255) NOT NULL,
-  `publication_year` year(4) NOT NULL,
+  `publisher` varchar(255),
+  `category` varchar(255),
+  `author` varchar(255),
+  `page` smallint(5) UNSIGNED,
+  `language` varchar(255),
+  `publication_year` year(4),
   `isbn` varchar(20) NOT NULL,
+  `file_content` blob,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
