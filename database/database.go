@@ -23,9 +23,9 @@ func SetupDatabase() {
 	db.SetMaxIdleConns(10)
 }
 
-func InsertBook(ctx context.Context, bookUUID, title, publisher, category, author, page, language, publicationYear, isbn string, fileContent []byte) error {
+func InsertBook(ctx context.Context, uuid string, title string, isbn string, publisher *string, category *string, author *string, page *int, language *string, publicationYear *int, fileContent []byte) error {
 	_, err := db.ExecContext(ctx, "INSERT INTO books (uuid, title, publisher, category, author, page, language, publication_year, isbn, file_content) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-		bookUUID,
+		uuid,
 		title,
 		publisher,
 		category,
@@ -39,10 +39,14 @@ func InsertBook(ctx context.Context, bookUUID, title, publisher, category, autho
 }
 
 func SelectBooks(ctx context.Context) (*sql.Rows, error) {
-	return db.QueryContext(ctx, "SELECT uuid, title, publisher, category, author, page, language, publication_year, isbn FROM books")
+	return db.QueryContext(ctx, "SELECT uuid, title, isbn FROM books")
 }
 
-func UpdateBook(ctx context.Context, title, publisher, category, author, page, language, publicationYear, isbn, bookUUID string) error {
+func SelectBook(ctx context.Context, uuid string) (*sql.Row, error) {
+	return db.QueryRowContext(ctx, "SELECT title, publisher, category, author, page, language, publication_year, isbn FROM books WHERE uuid = ?", uuid), nil
+}
+
+func UpdateBook(ctx context.Context, title string, publisher *string, category *string, author *string, page *int, language *string, publicationYear *int, isbn string, uuid string) error {
 	_, err := db.ExecContext(ctx, "UPDATE books SET title = ?, publisher = ?, category = ?, author = ?, page = ?, language = ?, publication_year = ?, isbn = ? WHERE uuid = ?",
 		title,
 		publisher,
@@ -52,11 +56,11 @@ func UpdateBook(ctx context.Context, title, publisher, category, author, page, l
 		language,
 		publicationYear,
 		isbn,
-		bookUUID)
+		uuid)
 	return err
 }
 
-func DeleteBook(ctx context.Context, bookUUID string) error {
-	_, err := db.ExecContext(ctx, "DELETE FROM books WHERE uuid = ?", bookUUID)
+func DeleteBook(ctx context.Context, uuid string) error {
+	_, err := db.ExecContext(ctx, "DELETE FROM books WHERE uuid = ?", uuid)
 	return err
 }
