@@ -6,8 +6,20 @@
     <title>neoLib</title>
     <link rel="stylesheet" href="stylesheets/style.css">
 </head>
-<body hx-boost="true" hx-get="/test" hx-target="#content" hx-trigger="load">
-    <h1>Hello neoLib</h1>
+<body hx-boost="true" hx-get="/server/books/" hx-target="#content" hx-trigger="load">
+    <h1>My Books</h1>
+    <a href="newbook.html">Add a new book</a>
+    <select
+        hx-get="/server/books/"
+        hx-target="#content"
+        hx-trigger="change"
+        hx-indicator="#loading"
+        hx-param="category"
+    >
+        <option value="all">All</option>
+        <option value="fiction">Fiction</option>
+        <option value="non-fiction">Non-Fiction</option>
+    </select>
     <div id="content">
         <!-- The template data will be loaded here -->
     </div>

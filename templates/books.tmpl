@@ -1,11 +1,7 @@
 {{range .}}
-    <p>{{.UUID}}</p>
-    <p>{{.Title}}</p>
-    <p>{{.Publisher}}</p>
-    <p>{{.Category}}</p>
-    <p>{{.Author}}</p>
-    <p>{{.Page}}</p>
-    <p>{{.Language}}</p>
-    <p>{{.PublicationYear}}</p>
-    <p>{{.ISBN}}</p>
+    <div id="{{.UUID}}">
+        <p>Title: {{.Title}}</p>
+        <p>ISBN: {{.ISBN}}</p>
+        <a href="/{{.UUID}}.html">View book details</a>
+    </div>
 {{end}}
