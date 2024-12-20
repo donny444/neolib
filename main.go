@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"log"
 	"neolib/books"
 	"neolib/database"
 	"net/http"
 	"os"
-	"path/filepath"
 )
 
 const basePath = "/server"
@@ -27,76 +25,30 @@ func CorsMiddleware(handler http.Handler) http.Handler {
 
 func SetupRoutes(path string) {
 	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	http.Handle("/", fs)
+	booksHandler := http.HandlerFunc(handleBooks)
+	http.Handle(fmt.Sprintf("%s/%s/", path, bookPath), CorsMiddleware(booksHandler))
 	bookHandler := http.HandlerFunc(handleBook)
-	http.Handle(fmt.Sprintf("%s/%s/", path, bookPath), CorsMiddleware(bookHandler))
+	http.Handle(fmt.Sprintf("%s/%s/:uuid", path, bookPath), CorsMiddleware(bookHandler))
 	libraryHandler := http.HandlerFunc(handleLibrary)
 	http.Handle(fmt.Sprintf("%s/%s", path, libraryPath), CorsMiddleware(libraryHandler))
-	http.Handle("/test", CorsMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		type Test struct {
-			Name   string
-			Number int
-		}
-		var test Test
-		test.Name = "Hello"
-		test.Number = 1
-
-		tmpl, err := template.ParseFiles("templates/test.tmpl")
-		if err != nil {
-			http.Error(w, "Unable to load the template", http.StatusInternalServerError)
-			return
-		}
-
-		if err := tmpl.Execute(w, test); err != nil {
-			http.Error(w, "Unable to execute the template", http.StatusInternalServerError)
-			return
-		}
-	})))
-	http.HandleFunc("/", serveTemplate)
 }
 
-func serveTemplate(w http.ResponseWriter, r *http.Request) {
-	lp := filepath.Join("templates", "layout.html")
-	fp := filepath.Join("templates", filepath.Clean(r.URL.Path))
-
-	// Return a 404 if the template doesn't exist
-	info, err := os.Stat(fp)
-	if err != nil {
-		if os.IsNotExist(err) {
-			http.NotFound(w, r)
-			return
-		}
-	}
-
-	// Return a 404 if the request is for a directory
-	if info.IsDir() {
-		http.NotFound(w, r)
-		return
-	}
-
-	tmpl, err := template.ParseFiles(lp, fp)
-	if err != nil {
-		// Log the detailed error
-		log.Print(err.Error())
-		// Return a generic "Internal Server Error" message
-		http.Error(w, http.StatusText(500), 500)
-		return
-	}
-
-	err = tmpl.ExecuteTemplate(w, "layout", nil)
-	if err != nil {
-		log.Print(err.Error())
-		http.Error(w, http.StatusText(500), 500)
-	}
-}
-
-func handleBook(w http.ResponseWriter, r *http.Request) {
+func handleBooks(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		books.GetBooks(w, r)
 		return
 	case http.MethodPost:
 		books.CreateBook(w, r)
+		return
+	}
+}
+
+func handleBook(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		books.GetBook(w, r)
 		return
 	case http.MethodPut:
 		books.EditBook(w, r)
@@ -125,5 +77,12 @@ func handleLibrary(w http.ResponseWriter, r *http.Request) {
 func main() {
 	database.SetupDatabase()
 	SetupRoutes(basePath)
+
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Current working directory:", wd)
+
 	http.ListenAndServe(":5000", nil)
 }
