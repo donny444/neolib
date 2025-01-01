@@ -29,7 +29,7 @@ func SetupRoutes(path string) {
 	booksHandler := http.HandlerFunc(handleBooks)
 	http.Handle(fmt.Sprintf("%s/%s/", path, bookPath), CorsMiddleware(booksHandler))
 	bookHandler := http.HandlerFunc(handleBook)
-	http.Handle(fmt.Sprintf("%s/%s/:uuid", path, bookPath), CorsMiddleware(bookHandler))
+	http.Handle(fmt.Sprintf("%s/%s/{book}", path, bookPath), CorsMiddleware(bookHandler))
 	libraryHandler := http.HandlerFunc(handleLibrary)
 	http.Handle(fmt.Sprintf("%s/%s", path, libraryPath), CorsMiddleware(libraryHandler))
 }
