@@ -29,6 +29,7 @@ type Book struct {
 func CreateBook(w http.ResponseWriter, r *http.Request) {
 	// Generate a new UUID
 	uuid := uuid.New().String()
+	fmt.Println("UUID: ", uuid)
 
 	// Parse the multipart form, with a maximum memory of 10MB
 	err := r.ParseMultipartForm(10 << 20) // 10MB
@@ -90,30 +91,39 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 		return &value
 	}
 
-	// Helper function to get pointer to int or nil
-	getIntPointer := func(value string) *int {
+	requiredInput := func(value string) string {
 		if value == "" {
-			return nil
+			http.Error(w, "Required inputs are not filled", http.StatusBadRequest)
 		}
-		intValue, err := strconv.Atoi(value)
-		if err != nil {
-			return nil
-		}
-		return &intValue
+		return value
 	}
+
+	// Helper function to get pointer to int or nil
+	// getIntPointer := func(value string) *int {
+	// 	if value == "" {
+	// 		return nil
+	// 	}
+	// 	intValue, err := strconv.Atoi(value)
+	// 	if err != nil {
+	// 		return nil
+	// 	}
+	// 	return &intValue
+	// }
 
 	// Continue with the database insertion
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	// Use the InsertBook function from the database package
-	err = database.InsertBook(ctx, uuid, r.FormValue("title"), r.FormValue("isbn"),
+	err = database.InsertBook(ctx, uuid,
+		requiredInput(r.FormValue("title")),
+		requiredInput(r.FormValue("isbn")),
 		getStringPointer(r.FormValue("publisher")),
 		getStringPointer(r.FormValue("category")),
 		getStringPointer(r.FormValue("author")),
-		getIntPointer(r.FormValue("page")),
+		getStringPointer(r.FormValue("page")),
 		getStringPointer(r.FormValue("language")),
-		getIntPointer(r.FormValue("publication_year")),
+		getStringPointer(r.FormValue("publication_year")),
 		fileContent)
 	if err != nil {
 		log.Fatal(err)
@@ -153,11 +163,15 @@ func GetBooks(w http.ResponseWriter, _ *http.Request) {
 	tmpl, err := template.ParseFiles("templates/books.tmpl")
 	if err != nil {
 		http.Error(w, "Unable to load the template", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Unable to load the template"))
 		return
 	}
 
 	if err := tmpl.Execute(w, books); err != nil {
 		http.Error(w, "Unable to execute the template", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Unable to execute the template"))
 		return
 	}
 
@@ -165,7 +179,8 @@ func GetBooks(w http.ResponseWriter, _ *http.Request) {
 }
 
 func GetBook(w http.ResponseWriter, r *http.Request) {
-	var uuid = r.URL.Path[len("/books/"):]
+	uuid := r.PathValue("book")
+	fmt.Println("UUID: ", uuid)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -185,11 +200,15 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("templates/book.tmpl")
 	if err != nil {
 		http.Error(w, "Unable to load the template", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Unable to load the template"))
 		return
 	}
 
 	if err := tmpl.Execute(w, book); err != nil {
 		http.Error(w, "Unable to execute the template", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Unable to execute the template"))
 		return
 	}
 
@@ -232,19 +251,28 @@ func EditBook(w http.ResponseWriter, r *http.Request) {
 		r.FormValue("uuid"))
 	if err != nil {
 		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Unable to update the book"))
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Book updated"))
 }
 
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
+	uuid := r.PathValue("book")
+	fmt.Println("UUID: ", uuid)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := database.DeleteBook(ctx, r.URL.Path[len("/books/"):])
+	err := database.DeleteBook(ctx, uuid)
 	if err != nil {
 		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Unable to delete the book"))
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+	w.Write([]byte("Book deleted"))
 }
