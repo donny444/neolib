@@ -1,0 +1,11 @@
+type Book {
+  uuid: String!
+  title: String!
+  publisher: String
+  category: String
+  author: String
+  page: Int
+  language: String
+  publicationYear: Int
+  isbn: String!
+}
