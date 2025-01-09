@@ -7,7 +7,6 @@ import (
 	"log"
 	"neolib/database"
 	"net/http"
-	"strconv"
 	"text/template"
 	"time"
 
@@ -130,6 +129,9 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("Book created"))
+	result := fmt.Sprintf("Book created with UUID: %s", uuid)
+	fmt.Println(result)
 }
 
 func GetBooks(w http.ResponseWriter, _ *http.Request) {
@@ -176,10 +178,12 @@ func GetBooks(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Retrieved all books"))
+	fmt.Println("Retrieved all books in the system")
 }
 
 func GetBook(w http.ResponseWriter, r *http.Request) {
-	uuid := r.PathValue("book")
+	uuid := r.URL.Query().Get("uuid")
 	fmt.Println("UUID: ", uuid)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -213,9 +217,15 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Retrieved the book specified by UUID"))
+	result := fmt.Sprintf("Retrieved the book specified by the UUID: %s", uuid)
+	fmt.Println(result)
 }
 
 func EditBook(w http.ResponseWriter, r *http.Request) {
+	uuid := r.PathValue("book")
+	fmt.Println("UUID: ", uuid)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -227,28 +237,22 @@ func EditBook(w http.ResponseWriter, r *http.Request) {
 		return &value
 	}
 
-	// Helper function to get pointer to int or nil
-	getIntPointer := func(value string) *int {
+	requiredInput := func(value string) string {
 		if value == "" {
-			return nil
+			http.Error(w, "Required inputs are not filled", http.StatusBadRequest)
 		}
-		intValue, err := strconv.Atoi(value)
-		if err != nil {
-			return nil
-		}
-		return &intValue
+		return value
 	}
 
-	err := database.UpdateBook(ctx,
-		r.FormValue("title"),
+	err := database.UpdateBook(ctx, uuid,
+		requiredInput(r.FormValue("title")),
+		requiredInput(r.FormValue("isbn")),
 		getStringPointer(r.FormValue("publisher")),
 		getStringPointer(r.FormValue("category")),
 		getStringPointer(r.FormValue("author")),
-		getIntPointer(r.FormValue("page")),
+		getStringPointer(r.FormValue("page")),
 		getStringPointer(r.FormValue("language")),
-		getIntPointer(r.FormValue("publication_year")),
-		r.FormValue("isbn"),
-		r.FormValue("uuid"))
+		getStringPointer(r.FormValue("publication_year")))
 	if err != nil {
 		log.Fatal(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -257,6 +261,8 @@ func EditBook(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Book updated"))
+	result := fmt.Sprintf("Book with UUID: %s is updated", uuid)
+	fmt.Println(result)
 }
 
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
@@ -274,5 +280,7 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
-	w.Write([]byte("Book deleted"))
+	w.Write([]byte("The book specified by UUID is deleted"))
+	result := fmt.Sprintf("Deleted the book specified by the UUID: %s", uuid)
+	fmt.Println(result)
 }

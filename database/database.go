@@ -46,16 +46,16 @@ func SelectBook(ctx context.Context, uuid string) (*sql.Row, error) {
 	return db.QueryRowContext(ctx, "SELECT title, publisher, category, author, page, language, publication_year, isbn FROM books WHERE uuid = ?", uuid), nil
 }
 
-func UpdateBook(ctx context.Context, title string, publisher *string, category *string, author *string, page *int, language *string, publicationYear *int, isbn string, uuid string) error {
-	_, err := db.ExecContext(ctx, "UPDATE books SET title = ?, publisher = ?, category = ?, author = ?, page = ?, language = ?, publication_year = ?, isbn = ? WHERE uuid = ?",
+func UpdateBook(ctx context.Context, uuid string, title string, isbn string, publisher *string, category *string, author *string, page *string, language *string, publicationYear *string) error {
+	_, err := db.ExecContext(ctx, "UPDATE books SET title = ?, isbn = ?, publisher = ?, category = ?, author = ?, page = ?, language = ?, publication_year = ? WHERE uuid = ?",
 		title,
+		isbn,
 		publisher,
 		category,
 		author,
 		page,
 		language,
 		publicationYear,
-		isbn,
 		uuid)
 	return err
 }
