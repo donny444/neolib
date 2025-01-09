@@ -6,9 +6,16 @@
     <title>neoLib</title>
     <link rel="stylesheet" href="stylesheets/style.css">
 </head>
-<body hx-boost="true" hx-get="/server/books/" hx-target="#content" hx-trigger="load">
+<body hx-boost="true" hx-get="/server/books/book?uuid=4368ac31-b70d-4674-a2d2-ec3ebb32954d" hx-target="#content" hx-trigger="load" hx-params="uuid">
     <div id="content">
-        <!-- The template data will be loaded here -->
+        {{if .Title}}<p>Title: {{.Title}}</p>{{end}}
+        {{if .Publisher}}<p>Publisher: {{.Publisher}}</p>{{end}}
+        {{if .Category}}<p>Category: {{.Category}}</p>{{end}}
+        {{if .Author}}<p>Author: {{.Author}}</p>{{end}}
+        {{if .Page}}<p>Page: {{.Page}}</p>{{end}}
+        {{if .Language}}<p>Language: {{.Language}}</p>{{end}}
+        {{if .PublicationYear}}<p>Publication year: {{.PublicationYear}}</p>{{end}}
+        {{if .ISBN}}<P>ISBN: {{.ISBN}}</p>{{end}}
     </div>
     <script src="scripts/htmx.min.js"></script>
 </body>

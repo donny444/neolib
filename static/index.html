@@ -8,7 +8,7 @@
 </head>
 <body hx-boost="true" hx-get="/server/books/" hx-target="#content" hx-trigger="load">
     <h1>My Books</h1>
-    <a href="newbook.html">Add a new book</a>
+    <a href="newbook.html" hx-target="body">Add a new book</a>
     <select
         hx-get="/server/books/"
         hx-target="#content"
