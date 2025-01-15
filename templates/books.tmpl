@@ -1,7 +1,7 @@
 {{range .}}
-    <div id="{{.UUID}}">
+    <div id="{{.UUID}}" hx-trigger="click" hx-get="/server/books/book?uuid={{.UUID}}" hx-target="body">
         <p>Title: {{.Title}}</p>
         <p>ISBN: {{.ISBN}}</p>
-        <a href="/{{.UUID}}.html">View book details</a>
+        <button>View book details</button>
     </div>
 {{end}}

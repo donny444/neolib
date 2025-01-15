@@ -1,37 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>neoLib</title>
-    <link rel="stylesheet" href="stylesheets/style.css">
-</head>
-<body hx-boost="true" hx-get="/server/books/{{.UUID}}" hx-target="#content" hx-trigger="load">
-    <div>
-        {{if .Title}}
-            <p>Title: {{.Title}}</p>
-        {{end}}
-        {{if .Publisher}}
-            <p>Publisher: {{.Publisher}}</p>
-        {{end}}
-        {{if .Category}}
-            <p>Category: {{.Category}}</p>
-        {{end}}
-        {{if .Author}}
-            <p>Author: {{.Author}}</p>
-        {{end}}
-        {{if .Page}}
-            <p>Page: {{.Page}}</p>
-        {{end}}
-        {{if  .Language}}
-            <p>Language: {{.Language}}</p>
-        {{end}}
-        {{if .PublicationYear}}
-            <p>Publication year: {{.PublicationYear}}</p>
-        {{end}}
-        {{if .ISBN}}
-            <P>ISBN: {{.ISBN}}</p>
-        {{end}}
-    </div>
-</body>
-</html>
+<div>
+    {{if .Title}}<p>Title: {{.Title}}</p>{{end}}
+    {{if .Publisher}}<p>Publisher: {{.Publisher}}</p>{{end}}
+    {{if .Category}}<p>Category: {{.Category}}</p>{{end}}
+    {{if .Author}}<p>Author: {{.Author}}</p>{{end}}
+    {{if .Page}}<p>Page: {{.Page}}</p>{{end}}
+    {{if .Language}}<p>Language: {{.Language}}</p>{{end}}
+    {{if .PublicationYear}}<p>Publication year: {{.PublicationYear}}</p>{{end}}
+    {{if .ISBN}}<P>ISBN: {{.ISBN}}</p>{{end}}
+</div>
