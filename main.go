@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"neolib/auth"
 	"neolib/books"
 	"neolib/database"
 	"net/http"
@@ -26,10 +27,19 @@ func CorsMiddleware(handler http.Handler) http.Handler {
 func SetupRoutes(path string) {
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/", fs)
+
+	signupHandler := http.HandlerFunc(auth.SignUp)
+	http.Handle(fmt.Sprintf("%s/auth/signup", path), CorsMiddleware(signupHandler))
+
+	signinHandler := http.HandlerFunc(auth.SignIn)
+	http.Handle(fmt.Sprintf("%s/auth/signin", path), CorsMiddleware(signinHandler))
+
 	booksHandler := http.HandlerFunc(handleBooks)
 	http.Handle(fmt.Sprintf("%s/%s/", path, bookPath), CorsMiddleware(booksHandler))
+
 	bookHandler := http.HandlerFunc(handleBook)
 	http.Handle(fmt.Sprintf("%s/%s/{book}", path, bookPath), CorsMiddleware(bookHandler))
+
 	libraryHandler := http.HandlerFunc(handleLibrary)
 	http.Handle(fmt.Sprintf("%s/%s", path, libraryPath), CorsMiddleware(libraryHandler))
 }

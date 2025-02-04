@@ -13,7 +13,7 @@ var db *sql.DB
 
 func SetupDatabase() {
 	var err error
-	db, err = sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/neolib")
+	db, err = sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/neolib")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func SelectBooks(ctx context.Context) (*sql.Rows, error) {
 }
 
 func SelectBook(ctx context.Context, uuid string) (*sql.Row, error) {
-	return db.QueryRowContext(ctx, "SELECT title, publisher, category, author, page, language, publication_year, isbn FROM books WHERE uuid = ?", uuid), nil
+	return db.QueryRowContext(ctx, "SELECT uuid, title, publisher, category, author, page, language, publication_year, isbn FROM books WHERE uuid = ?", uuid), nil
 }
 
 func UpdateBook(ctx context.Context, uuid string, title string, isbn string, publisher *string, category *string, author *string, page *string, language *string, publicationYear *string) error {
@@ -62,5 +62,14 @@ func UpdateBook(ctx context.Context, uuid string, title string, isbn string, pub
 
 func DeleteBook(ctx context.Context, uuid string) error {
 	_, err := db.ExecContext(ctx, "DELETE FROM books WHERE uuid = ?", uuid)
+	return err
+}
+
+func FindUser(ctx context.Context, usernameOrEmail string) (*sql.Row, error) {
+	return db.QueryRowContext(ctx, "SELECT username, email, password FROM users WHERE username = ? OR email = ?", usernameOrEmail, usernameOrEmail), nil
+}
+
+func CreateUser(ctx context.Context, username string, email string, password string) error {
+	_, err := db.ExecContext(ctx, "INSERT INTO users (username, email, password) VALUES (?, ?, ?)", username, email, password)
 	return err
 }
