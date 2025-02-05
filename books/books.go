@@ -7,6 +7,7 @@ import (
 	"log"
 	"neolib/database"
 	"net/http"
+	"os"
 	"text/template"
 	"time"
 
@@ -50,37 +51,37 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		defer file.Close()
-
-		// Read the uploaded file content into a byte slice
-		fileContent, err = io.ReadAll(file)
-		if err != nil {
-			http.Error(w, "Unable to read the file", http.StatusInternalServerError)
-			fmt.Println("Error: ", err)
-			return
-		}
 	}
 
-	// // Create the books directory if it doesn't exist
-	// err = os.MkdirAll("books", os.ModePerm)
-	// if err != nil {
-	// 	http.Error(w, "Unable to create directory", http.StatusInternalServerError)
-	// 	return
-	// }
+	// Create the books directory if it doesn't exist
+	err = os.MkdirAll("books", os.ModePerm)
+	if err != nil {
+		http.Error(w, "Unable to create directory", http.StatusInternalServerError)
+		return
+	}
 
-	// // Create a file in the books directory
-	// dst, err := os.Create(fmt.Sprintf("books/%s", handler.Filename))
-	// if err != nil {
-	// 	http.Error(w, "Unable to create the file", http.StatusInternalServerError)
-	// 	return
-	// }
-	// defer dst.Close()
+	// Create a file in the books directory
+	dst, err := os.Create(fmt.Sprintf("books/%s.jpg", uuid))
+	if err != nil {
+		http.Error(w, "Unable to create the file", http.StatusInternalServerError)
+		return
+	}
+	defer dst.Close()
 
-	// // Copy the uploaded file to the destination file
-	// _, err = io.Copy(dst, file)
-	// if err != nil {
-	// 	http.Error(w, "Unable to save the file", http.StatusInternalServerError)
-	// 	return
-	// }
+	// Copy the uploaded file to the destination file
+	_, err = io.Copy(dst, file)
+	if err != nil {
+		http.Error(w, "Unable to save the file", http.StatusInternalServerError)
+		return
+	}
+
+	// Read the uploaded file content into a byte slice
+	fileContent, err = io.ReadAll(file)
+	if err != nil {
+		http.Error(w, "Unable to read the file", http.StatusInternalServerError)
+		fmt.Println("Error: ", err)
+		return
+	}
 
 	// Helper function to get pointer to string or nil
 	getStringPointer := func(value string) *string {
@@ -178,7 +179,8 @@ func GetBooks(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Retrieved all books"))
+	// w.Write([]byte("Retrieved all books"))
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Println("Retrieved all books in the system")
 }
 
@@ -195,7 +197,7 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var book Book
-	if err := row.Scan(&book.Title, &book.Publisher, &book.Category, &book.Author, &book.Page, &book.Language, &book.PublicationYear, &book.ISBN); err != nil {
+	if err := row.Scan(&book.UUID, &book.Title, &book.Publisher, &book.Category, &book.Author, &book.Page, &book.Language, &book.PublicationYear, &book.ISBN); err != nil {
 		http.Error(w, "Unable to scan the row", http.StatusInternalServerError)
 		fmt.Println("Scan error: ", err)
 		return
