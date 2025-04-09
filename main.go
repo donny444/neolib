@@ -10,41 +10,44 @@ import (
 	"os"
 )
 
-const basePath = "/server"
-const libraryPath = "library"
-const bookPath = "books"
-
 func CorsMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Access-Control-Allow-Origin", "*")
-		w.Header().Add("Access-Control-Allow-Headers", "Authorization, Accept, Content-Length, Content-Type")
-		w.Header().Add("Content-Type", "application/json")
-		w.Header().Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+		w.Header().Add("Access-Control-Allow-Headers", "*")
+		w.Header().Add("Content-Type", "*")
+		w.Header().Add("Access-Control-Allow-Methods", "*")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
 		handler.ServeHTTP(w, r)
 	})
 }
 
-func SetupRoutes(path string) {
+func SetupRoutes() {
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/", fs)
 
 	signupHandler := http.HandlerFunc(auth.SignUp)
-	http.Handle(fmt.Sprintf("%s/auth/signup", path), CorsMiddleware(signupHandler))
+	http.Handle("/auth/signup/", CorsMiddleware(signupHandler))
 
 	signinHandler := http.HandlerFunc(auth.SignIn)
-	http.Handle(fmt.Sprintf("%s/auth/signin", path), CorsMiddleware(signinHandler))
+	http.Handle("/auth/signin/", CorsMiddleware(signinHandler))
 
 	booksHandler := http.HandlerFunc(handleBooks)
-	http.Handle(fmt.Sprintf("%s/%s/", path, bookPath), CorsMiddleware(booksHandler))
+	http.Handle("/server/books/", CorsMiddleware(booksHandler))
 
 	bookHandler := http.HandlerFunc(handleBook)
-	http.Handle(fmt.Sprintf("%s/%s/{book}", path, bookPath), CorsMiddleware(bookHandler))
+	http.Handle("/server/{book}/", CorsMiddleware(bookHandler))
 
 	libraryHandler := http.HandlerFunc(handleLibrary)
-	http.Handle(fmt.Sprintf("%s/%s", path, libraryPath), CorsMiddleware(libraryHandler))
+	http.Handle("/server/library/", CorsMiddleware(libraryHandler))
 }
 
 func handleBooks(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case http.MethodGet:
 		books.GetBooks(w, r)
@@ -86,7 +89,7 @@ func handleLibrary(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	database.SetupDatabase()
-	SetupRoutes(basePath)
+	SetupRoutes()
 
 	wd, err := os.Getwd()
 	if err != nil {
