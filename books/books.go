@@ -8,6 +8,7 @@ import (
 	"neolib/database"
 	"net/http"
 	"os"
+	"path/filepath"
 	"text/template"
 	"time"
 
@@ -40,9 +41,10 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var fileContent []byte
+	fileExtension := ""
 
 	// Retrieve the file from the form data
-	file, _, err := r.FormFile("book_image")
+	file, fileHeader, err := r.FormFile("book_image")
 	if err != nil {
 		if err != http.ErrMissingFile {
 			http.Error(w, "Error retrieving the file", http.StatusBadRequest)
@@ -51,40 +53,44 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		defer file.Close()
-	}
 
-	// Create the books directory if it doesn't exist
-	err = os.MkdirAll("books", os.ModePerm)
-	if err != nil {
-		http.Error(w, "Unable to create directory", http.StatusInternalServerError)
-		return
-	}
+		if fileHeader != nil {
+			fileExtension = filepath.Ext(fileHeader.Filename)
+		}
 
-	// Create a file in the books directory
-	dst, err := os.Create(fmt.Sprintf("books/%s.jpg", uuid))
-	if err != nil {
-		http.Error(w, "Unable to create the file", http.StatusInternalServerError)
-		return
-	}
-	defer dst.Close()
+		// Create the books directory if it doesn't exist
+		err = os.MkdirAll("books", os.ModePerm)
+		if err != nil {
+			http.Error(w, "Unable to create directory", http.StatusInternalServerError)
+			return
+		}
 
-	// Copy the uploaded file to the destination file
-	_, err = io.Copy(dst, file)
-	if err != nil {
-		http.Error(w, "Unable to save the file", http.StatusInternalServerError)
-		return
-	}
+		// Create a file in the books directory
+		dst, err := os.Create(fmt.Sprintf("books/%s%s", uuid, fileExtension))
+		if err != nil {
+			http.Error(w, "Unable to create the file", http.StatusInternalServerError)
+			return
+		}
+		defer dst.Close()
 
-	// Read the uploaded file content into a byte slice
-	fileContent, err = io.ReadAll(file)
-	if err != nil {
-		http.Error(w, "Unable to read the file", http.StatusInternalServerError)
-		fmt.Println("Error: ", err)
-		return
+		// Copy the uploaded file to the destination file
+		_, err = io.Copy(dst, file)
+		if err != nil {
+			http.Error(w, "Unable to save the file", http.StatusInternalServerError)
+			return
+		}
+
+		// Read the uploaded file content into a byte slice
+		fileContent, err = io.ReadAll(file)
+		if err != nil {
+			http.Error(w, "Unable to read the file", http.StatusInternalServerError)
+			fmt.Println("Error: ", err)
+			return
+		}
 	}
 
 	// Helper function to get pointer to string or nil
-	getStringPointer := func(value string) *string {
+	optionalInput := func(value string) *string {
 		if value == "" {
 			return nil
 		}
@@ -98,18 +104,6 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 		return value
 	}
 
-	// Helper function to get pointer to int or nil
-	// getIntPointer := func(value string) *int {
-	// 	if value == "" {
-	// 		return nil
-	// 	}
-	// 	intValue, err := strconv.Atoi(value)
-	// 	if err != nil {
-	// 		return nil
-	// 	}
-	// 	return &intValue
-	// }
-
 	// Continue with the database insertion
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -118,12 +112,12 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	err = database.InsertBook(ctx, uuid,
 		requiredInput(r.FormValue("title")),
 		requiredInput(r.FormValue("isbn")),
-		getStringPointer(r.FormValue("publisher")),
-		getStringPointer(r.FormValue("category")),
-		getStringPointer(r.FormValue("author")),
-		getStringPointer(r.FormValue("page")),
-		getStringPointer(r.FormValue("language")),
-		getStringPointer(r.FormValue("publication_year")),
+		optionalInput(r.FormValue("publisher")),
+		optionalInput(r.FormValue("category")),
+		optionalInput(r.FormValue("author")),
+		optionalInput(r.FormValue("page")),
+		optionalInput(r.FormValue("language")),
+		optionalInput(r.FormValue("publication_year")),
 		fileContent)
 	if err != nil {
 		log.Fatal(err)
@@ -185,7 +179,7 @@ func GetBooks(w http.ResponseWriter, _ *http.Request) {
 }
 
 func GetBook(w http.ResponseWriter, r *http.Request) {
-	uuid := r.URL.Query().Get("uuid")
+	uuid := r.URL.Path[len("/server/") : len(r.URL.Path)-1]
 	fmt.Println("UUID: ", uuid)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -219,7 +213,7 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Retrieved the book specified by UUID"))
+	// w.Write([]byte("Retrieved the book specified by UUID"))
 	result := fmt.Sprintf("Retrieved the book specified by the UUID: %s", uuid)
 	fmt.Println(result)
 }
@@ -232,7 +226,7 @@ func EditBook(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// Helper function to get pointer to string or nil
-	getStringPointer := func(value string) *string {
+	optionalInput := func(value string) *string {
 		if value == "" {
 			return nil
 		}
@@ -249,12 +243,12 @@ func EditBook(w http.ResponseWriter, r *http.Request) {
 	err := database.UpdateBook(ctx, uuid,
 		requiredInput(r.FormValue("title")),
 		requiredInput(r.FormValue("isbn")),
-		getStringPointer(r.FormValue("publisher")),
-		getStringPointer(r.FormValue("category")),
-		getStringPointer(r.FormValue("author")),
-		getStringPointer(r.FormValue("page")),
-		getStringPointer(r.FormValue("language")),
-		getStringPointer(r.FormValue("publication_year")))
+		optionalInput(r.FormValue("publisher")),
+		optionalInput(r.FormValue("category")),
+		optionalInput(r.FormValue("author")),
+		optionalInput(r.FormValue("page")),
+		optionalInput(r.FormValue("language")),
+		optionalInput(r.FormValue("publication_year")))
 	if err != nil {
 		log.Fatal(err)
 		w.WriteHeader(http.StatusInternalServerError)
