@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -27,6 +28,7 @@ type Claims struct {
 func SignIn(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		fmt.Println("Method not allowed")
 		return
 	}
 
@@ -39,18 +41,21 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	user, err := database.FindUser(ctx, usernameOrEmail)
 	if err != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		fmt.Println("Invalid credentials")
 		return
 	}
 
 	var credentials Credentials
 	if err := user.Scan(&credentials.Username, &credentials.Email, &credentials.Password); err != nil {
 		http.Error(w, "Unable to scan the row", http.StatusInternalServerError)
+		fmt.Println("Unable to scan the row")
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(credentials.Password), []byte(password))
 	if err != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		fmt.Println("Invalid credentials")
 		return
 	}
 
@@ -64,15 +69,18 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		fmt.Println("Internal Server Error")
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(tokenString))
 }
 
 func SignUp(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		fmt.Println("Method not allowed")
 		return
 	}
 
@@ -86,24 +94,28 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	_, err := database.FindUser(ctx, username)
 	if err != nil {
 		http.Error(w, "Username already used", http.StatusConflict)
+		fmt.Println("Username already used")
 		return
 	}
 
 	_, err = database.FindUser(ctx, email)
 	if err != nil {
 		http.Error(w, "Email already exists", http.StatusInternalServerError)
+		fmt.Println("Email already exists")
 		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		http.Error(w, "Unable to hash password", http.StatusInternalServerError)
+		fmt.Println("Unable to hash password")
 		return
 	}
 
 	err = database.CreateUser(ctx, username, email, string(hashedPassword))
 	if err != nil {
 		http.Error(w, "Unable to create user", http.StatusInternalServerError)
+		fmt.Println("Unable to create user")
 		return
 	}
 
