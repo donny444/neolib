@@ -28,6 +28,8 @@ type Book struct {
 }
 
 func CreateBook(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("CreateBook function get called")
+
 	// Generate a new UUID
 	uuid := uuid.New().String()
 	fmt.Println("UUID: ", uuid)
@@ -129,11 +131,20 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(result)
 }
 
-func GetBooks(w http.ResponseWriter, _ *http.Request) {
+func GetBooks(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("GetBooks function get called")
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	rows, err := database.SelectBooks(ctx)
+	category := r.URL.Query().Get("category")
+
+	var categoryPtr *string
+	if category != "" {
+		categoryPtr = &category
+	}
+
+	rows, err := database.SelectBooks(ctx, categoryPtr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -179,6 +190,8 @@ func GetBooks(w http.ResponseWriter, _ *http.Request) {
 }
 
 func GetBook(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("GetBook function get called")
+
 	uuid := r.URL.Path[len("/server/") : len(r.URL.Path)-1]
 	fmt.Println("UUID: ", uuid)
 
@@ -219,6 +232,8 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func EditBook(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("EditBook function get called")
+
 	uuid := r.PathValue("book")
 	fmt.Println("UUID: ", uuid)
 
@@ -262,6 +277,8 @@ func EditBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("DeleteBook function get called")
+
 	uuid := r.PathValue("book")
 	fmt.Println("UUID: ", uuid)
 
