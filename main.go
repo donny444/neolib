@@ -88,7 +88,12 @@ func handleLibrary(w http.ResponseWriter, r *http.Request) {
 // }
 
 func main() {
-	database.SetupDatabase()
+	err := database.SetupDatabase()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Database connected successfully")
+
 	SetupRoutes()
 
 	wd, err := os.Getwd()
