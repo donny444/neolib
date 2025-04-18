@@ -37,10 +37,10 @@ func SetupRoutes() {
 	http.Handle("/auth/signin/", CorsMiddleware(signinHandler))
 
 	booksHandler := http.HandlerFunc(handleBooks)
-	http.Handle("/server/books/", CorsMiddleware(booksHandler))
+	http.Handle("/books/", CorsMiddleware(booksHandler))
 
 	bookHandler := http.HandlerFunc(handleBook)
-	http.Handle("/server/{book}/", CorsMiddleware(bookHandler))
+	http.Handle("/books/{book}/", CorsMiddleware(bookHandler))
 
 	libraryHandler := http.HandlerFunc(handleLibrary)
 	http.Handle("/server/library/", CorsMiddleware(libraryHandler))
