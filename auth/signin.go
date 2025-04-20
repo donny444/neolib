@@ -23,6 +23,13 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	usernameOrEmail := r.FormValue("usernameOrEmail")
 	password := r.FormValue("password")
 
+	err := validateSignIn(usernameOrEmail, password)
+	if err != nil {
+		fmt.Println(err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -63,4 +70,31 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(tokenString))
+}
+
+func validateSignIn(usernameOrEmail string, password string) error {
+	if usernameOrEmail == "" {
+		return fmt.Errorf("username or email is required")
+	}
+
+	if password == "" {
+		return fmt.Errorf("password is required")
+	}
+
+	if len(password) > 16 {
+		return fmt.Errorf("password must be at least 16 characters long")
+	}
+
+	forbiddenChars := []rune{'!', '#', '$', '%', '^', '&', '*', '(', ')', '=', '+', '{', '}', '[', ']', '|', '\\', ':', ';', '\'', '"', '<', '>', ',', '?', '/', '`', '~', ' '}
+	for _, char := range forbiddenChars {
+		if containsRune(usernameOrEmail, char) {
+			return fmt.Errorf("username or email must not contain forbidden special characters")
+		}
+
+		if containsRune(password, char) {
+			return fmt.Errorf("password must not contain forbidden special characters")
+		}
+	}
+
+	return nil
 }
