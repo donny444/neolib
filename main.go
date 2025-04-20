@@ -14,7 +14,9 @@ func CorsMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Header().Add("Access-Control-Allow-Headers", "*")
-		w.Header().Add("Content-Type", "*")
+		w.Header().Add("Content-Type", "text/html; charset=utf-8")
+		w.Header().Add("Access-Control-Allow-Credentials", "true")
+		w.Header().Add("Accept", "multipart/form-date")
 		w.Header().Add("Access-Control-Allow-Methods", "*")
 
 		if r.Method == http.MethodOptions {
@@ -41,13 +43,9 @@ func SetupRoutes() {
 
 	bookHandler := http.HandlerFunc(handleBook)
 	http.Handle("/books/{book}/", CorsMiddleware(bookHandler))
-
-	libraryHandler := http.HandlerFunc(handleLibrary)
-	http.Handle("/server/library/", CorsMiddleware(libraryHandler))
 }
 
 func handleBooks(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case http.MethodGet:
 		books.GetBooks(w, r)
@@ -71,21 +69,6 @@ func handleBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-
-func handleLibrary(w http.ResponseWriter, r *http.Request) {
-}
-
-// func getBooksbyCategory(_ http.ResponseWriter, r *http.Request) {
-// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-// 	defer cancel()
-
-// 	books, err := database.QueryContext(ctx, "SELECT * FROM books WHERE category = ?", r.URL.Query().Get("category"))
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer books.Close()
-// 	fmt.Println(books)
-// }
 
 func main() {
 	err := database.SetupDatabase()
