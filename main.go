@@ -16,7 +16,7 @@ func CorsMiddleware(handler http.Handler) http.Handler {
 		w.Header().Add("Access-Control-Allow-Headers", "*")
 		w.Header().Add("Content-Type", "text/html; charset=utf-8")
 		w.Header().Add("Access-Control-Allow-Credentials", "true")
-		w.Header().Add("Accept", "multipart/form-date")
+		w.Header().Add("Accept", "multipart/form-data")
 		w.Header().Add("Access-Control-Allow-Methods", "*")
 
 		if r.Method == http.MethodOptions {

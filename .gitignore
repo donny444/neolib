@@ -1,7 +1,3 @@
 .vscode
 .env
-books/*.jpg
-books/*.png
-books/*.gif
-books/*.bmp
-books/*.tiff
+/images

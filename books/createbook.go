@@ -33,7 +33,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	fileExtension := ""
 
 	// Retrieve the file from the form data
-	file, fileHeader, err := r.FormFile("book_image")
+	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
 		if err != http.ErrMissingFile {
 			http.Error(w, "Error retrieving the file", http.StatusBadRequest)
@@ -41,6 +41,12 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
+		if file == nil {
+			fmt.Println("Client did not upload a file")
+		} else {
+			fmt.Println("File uploaded")
+		}
+
 		defer file.Close()
 
 		if fileHeader != nil {
@@ -48,7 +54,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Create a file in the images directory
-		dst, err := os.Create(fmt.Sprintf("/images/%s%s", uuid, fileExtension))
+		dst, err := os.Create(fmt.Sprintf("./images/%s%s", uuid, fileExtension))
 		if err != nil {
 			http.Error(w, "Unable to create the file", http.StatusInternalServerError)
 			return
