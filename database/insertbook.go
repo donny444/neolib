@@ -2,17 +2,16 @@ package database
 
 import "context"
 
-func InsertBook(ctx context.Context, uuid string, title string, isbn string, publisher *string, category *string, author *string, page *string, language *string, publicationYear *string, fileContent []byte) error {
-	_, err := db.ExecContext(ctx, "INSERT INTO books (uuid, title, publisher, category, author, page, language, publication_year, isbn, file_content) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-		uuid,
+func InsertBook(ctx context.Context, isbn string, title string, publisher *string, category *string, author *string, pages *string, language *string, publicationYear *string, fileContent []byte) error {
+	_, err := db.ExecContext(ctx, "INSERT INTO books (isbn, title, publisher, category, author, pages, language, publication_year, file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		isbn,
 		title,
 		publisher,
 		category,
 		author,
-		page,
+		pages,
 		language,
 		publicationYear,
-		isbn,
 		fileContent)
 	return err
 }

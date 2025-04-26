@@ -10,16 +10,12 @@ import (
 	"os"
 	"path/filepath"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 func CreateBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("CreateBook function get called")
 
-	// Generate a new UUID
-	uuid := uuid.New().String()
-	fmt.Println("UUID: ", uuid)
+	isbn := r.FormValue("isbn")
 
 	// Parse the multipart form, with a maximum memory of 10MB
 	err := r.ParseMultipartForm(10 << 20) // 10MB
@@ -54,7 +50,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Create a file in the images directory
-		dst, err := os.Create(fmt.Sprintf("./images/%s%s", uuid, fileExtension))
+		dst, err := os.Create(fmt.Sprintf("./images/%s%s", isbn, fileExtension))
 		if err != nil {
 			http.Error(w, "Unable to create the file", http.StatusInternalServerError)
 			return
@@ -97,13 +93,13 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// Use the InsertBook function from the database package
-	err = database.InsertBook(ctx, uuid,
-		requiredInput(r.FormValue("title")),
+	err = database.InsertBook(ctx,
 		requiredInput(r.FormValue("isbn")),
+		requiredInput(r.FormValue("title")),
 		optionalInput(r.FormValue("publisher")),
 		optionalInput(r.FormValue("category")),
 		optionalInput(r.FormValue("author")),
-		optionalInput(r.FormValue("page")),
+		optionalInput(r.FormValue("pages")),
 		optionalInput(r.FormValue("language")),
 		optionalInput(r.FormValue("publication_year")),
 		fileContent)
@@ -113,6 +109,6 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Book created"))
-	result := fmt.Sprintf("Book created with UUID: %s", uuid)
+	result := fmt.Sprintf("Book created with ISBN: %s", isbn)
 	fmt.Println(result)
 }

@@ -5,6 +5,6 @@ import (
 	"database/sql"
 )
 
-func SelectBook(ctx context.Context, uuid string) (*sql.Row, error) {
-	return db.QueryRowContext(ctx, "SELECT uuid, title, publisher, category, author, page, language, publication_year, isbn FROM books WHERE uuid = ?", uuid), nil
+func SelectBook(ctx context.Context, isbn string) (*sql.Row, error) {
+	return db.QueryRowContext(ctx, "SELECT isbn, title, publisher, category, author, pages, language, publication_year FROM books WHERE isbn = ?", isbn), nil
 }

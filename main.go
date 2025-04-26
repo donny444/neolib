@@ -14,7 +14,6 @@ func CorsMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		w.Header().Add("Access-Control-Allow-Headers", "*")
-		w.Header().Add("Content-Type", "text/html; charset=utf-8")
 		w.Header().Add("Access-Control-Allow-Credentials", "true")
 		w.Header().Add("Accept", "multipart/form-data")
 		w.Header().Add("Access-Control-Allow-Methods", "*")
@@ -39,10 +38,12 @@ func SetupRoutes() {
 	http.Handle("/auth/signin/", CorsMiddleware(signinHandler))
 
 	booksHandler := http.HandlerFunc(handleBooks)
+	// http.Handle("/books/", CorsMiddleware(auth.Authentication(auth.Authorization(booksHandler))))
 	http.Handle("/books/", CorsMiddleware(booksHandler))
 
 	bookHandler := http.HandlerFunc(handleBook)
-	http.Handle("/books/{book}/", CorsMiddleware(bookHandler))
+	// http.Handle("/books/{isbn}/", CorsMiddleware(auth.Authentication(auth.Authorization(bookHandler))))
+	http.Handle("/books/{isbn}/", CorsMiddleware(bookHandler))
 }
 
 func handleBooks(w http.ResponseWriter, r *http.Request) {

@@ -3,13 +3,12 @@ package database
 import (
 	"context"
 	"database/sql"
-	"fmt"
 )
 
 func SelectBooks(ctx context.Context, category *string) (*sql.Rows, error) {
 	if category != nil {
-		return db.QueryContext(ctx, fmt.Sprintf("SELECT uuid, title, isbn FROM books WHERE category = '%s'", *category))
+		return db.QueryContext(ctx, "SELECT isbn, title FROM books WHERE category = ?", *category)
 	} else {
-		return db.QueryContext(ctx, "SELECT uuid, title, isbn FROM books")
+		return db.QueryContext(ctx, "SELECT isbn, title FROM books")
 	}
 }

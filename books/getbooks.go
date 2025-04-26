@@ -40,7 +40,7 @@ func GetBooks(w http.ResponseWriter, r *http.Request) {
 	var books []types.Books
 	for rows.Next() {
 		var book types.Books
-		if err := rows.Scan(&book.UUID, &book.Title, &book.ISBN); err != nil {
+		if err := rows.Scan(&book.ISBN, &book.Title); err != nil {
 			http.Error(w, "Unable to scan the row", http.StatusInternalServerError)
 			fmt.Println("Scan error: ", err)
 			return

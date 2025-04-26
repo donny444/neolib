@@ -12,8 +12,8 @@ import (
 func EditBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("EditBook function get called")
 
-	uuid := r.PathValue("book")
-	fmt.Println("UUID: ", uuid)
+	isbn := r.PathValue("isbn")
+	fmt.Println("ISBN: ", isbn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -33,9 +33,9 @@ func EditBook(w http.ResponseWriter, r *http.Request) {
 		return value
 	}
 
-	err := database.UpdateBook(ctx, uuid,
-		requiredInput(r.FormValue("title")),
+	err := database.UpdateBook(ctx,
 		requiredInput(r.FormValue("isbn")),
+		requiredInput(r.FormValue("title")),
 		optionalInput(r.FormValue("publisher")),
 		optionalInput(r.FormValue("category")),
 		optionalInput(r.FormValue("author")),
@@ -50,6 +50,6 @@ func EditBook(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Book updated"))
-	result := fmt.Sprintf("Book with UUID: %s is updated", uuid)
+	result := fmt.Sprintf("Book with ISBN: %s is updated", isbn)
 	fmt.Println(result)
 }
