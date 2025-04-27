@@ -70,6 +70,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(tokenString))
+	fmt.Println("User signed in successfully")
 }
 
 func validateSignIn(usernameOrEmail string, password string) error {

@@ -60,6 +60,8 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("User created successfully"))
+	fmt.Println("User created successfully")
 }
 
 func validateSignUp(username, email, password string) error {
