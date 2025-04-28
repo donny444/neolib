@@ -1,40 +1,27 @@
 # neoLib
 
-## Description
+### Description
 
 The library website that you can keep track of your own physical books by upload the image and enter the form. You can view all the books you saved filtered by category or language, search for the books and check whether or not you've finished reading the book.
 
-## Tech Stack
+---
 
-**Client**
+### Tech Stack
 
-- HTMX
+**Language:** Go (standard HTTP library).
 
-**Styling**
+**Database:** MySQL
 
-- Sass (BEM)
-
-**API**
-
-- GraphQL
-
-**Server**
-
-- Go
-
-**Database**
-
-- MySQL
-- SQLite (Maybe in the next migration.)
+**CI/CD:** Docker, Git
 
 ---
 
 ### Tasks
 
-- [ ]  Save books to the relational database as a binary data.
-- [ ]  Client makes a request from HTML pages to specified routes using HTMX.
-- [ ]  Generate dummy book data.
-- [ ]  Create template files to serve static webpages.
-- [ ]  Convert the API from REST to GraphQL.
-- [ ]  Authentication for different users in the system.
-- [ ]  File uploading to the server (or database).
+- [x]  Save books to the relational database as a binary data.
+- [ ]  Create template files for text/html responses
+- [ ]  Authentication and authorization.
+- [ ]  Input validation and sanitization.
+- [ ]  SQL views and library tables for registered users in the system.
+- [ ]  Advanced SQL queries for dashboard analytics on the client side
+- [x]  File uploading to the server (or database).
