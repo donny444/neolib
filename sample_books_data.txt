@@ -1,41 +1,36 @@
-title: supercommunicators
-isbn: B0C5VBDC65
-publisher: Random House
+title: into the wild
+isbn: 1111
+publisher: Yim Publishing
 category: Self Improvement
-author: Charles Duhigg
-page: 307
+author: Poo Srang
+pages: 300
+language: Thai
+publication_year: 2025
+
+title: Jeez
+isbn: 22222222
+category: Literature
+pages: 342
 language: English
 publication_year: 2024
 
-title: Fluke
-isbn: B0C7RPB2SX
-publisher: Scribner
-category: Self Improvement
-page: 335
-language: English
-publication_year: 2024
-
-title: Capital: Volume I
-isbn: B002XHNMN0
-publisher: Penguin
-page: 1134
-language: English
-publication_year: 2004
-
-title: Introduction to Algorithms
-isbn: 978-0262046305
-publisher: The MIT Press
-category: Textbook
-author: Thomas H. Cormen
-page: 1312
-language: English
-publication_year: 2022
-
-title: Yellowface
-isbn: B0B9SN8K6H
-publisher: William Morrow
-category: Fiction
-author: R. F. Kuang
-page: 351
-language: English
+title: Deez Nut I
+isbn: 33333333
+publisher: Yim Publishing
+category: Social Studies
+language: Spanish
 publication_year: 2023
+
+title: Failure
+isbn: 44444444
+category: Social Studies
+author: Poo Srang
+pages: 842
+language: English
+publication_year: 2010
+
+title: On Economics
+isbn: BBBIPC9
+pages: 229
+language: Hindi
+publication_year: 2015
