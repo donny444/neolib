@@ -16,13 +16,18 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 
+	username, ok := r.Context().Value("username").(string)
+	if !ok || username == "" {
+		log.Fatal("Username not found in context")
+	}
+
 	isbn := r.PathValue("isbn")
 	fmt.Println("ISBN: ", isbn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	row, err := database.SelectBook(ctx, isbn)
+	row, err := database.SelectBook(ctx, username, isbn)
 	if err != nil {
 		log.Fatal(err)
 	}

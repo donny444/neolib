@@ -15,6 +15,11 @@ import (
 func CreateBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("CreateBook function get called")
 
+	username, ok := r.Context().Value("username").(string)
+	if !ok || username == "" {
+		log.Fatal("Username not found in context")
+	}
+
 	isbn := r.FormValue("isbn")
 
 	// Parse the multipart form, with a maximum memory of 10MB
@@ -50,7 +55,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Create a file in the images directory
-		dst, err := os.Create(fmt.Sprintf("./images/%s%s", isbn, fileExtension))
+		dst, err := os.Create(fmt.Sprintf("./images/%s/%s%s", username, isbn, fileExtension))
 		if err != nil {
 			http.Error(w, "Unable to create the file", http.StatusInternalServerError)
 			return
@@ -94,6 +99,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 
 	// Use the InsertBook function from the database package
 	err = database.InsertBook(ctx,
+		username,
 		requiredInput(r.FormValue("isbn")),
 		requiredInput(r.FormValue("title")),
 		optionalInput(r.FormValue("publisher")),

@@ -2,7 +2,7 @@ package database
 
 import "context"
 
-func DeleteBook(ctx context.Context, isbn string) error {
-	_, err := db.ExecContext(ctx, "DELETE FROM books WHERE isbn = ?", isbn)
+func DeleteBook(ctx context.Context, username string, isbn string) error {
+	_, err := db.ExecContext(ctx, "DELETE FROM ? WHERE isbn = ?", username, isbn)
 	return err
 }

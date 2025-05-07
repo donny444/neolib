@@ -12,6 +12,11 @@ import (
 func EditBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("EditBook function get called")
 
+	username, ok := r.Context().Value("username").(string)
+	if !ok || username == "" {
+		log.Fatal("Username not found in context")
+	}
+
 	isbn := r.PathValue("isbn")
 	fmt.Println("ISBN: ", isbn)
 
@@ -34,12 +39,13 @@ func EditBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := database.UpdateBook(ctx,
+		username,
 		requiredInput(r.FormValue("isbn")),
 		requiredInput(r.FormValue("title")),
 		optionalInput(r.FormValue("publisher")),
 		optionalInput(r.FormValue("category")),
 		optionalInput(r.FormValue("author")),
-		optionalInput(r.FormValue("page")),
+		optionalInput(r.FormValue("pages")),
 		optionalInput(r.FormValue("language")),
 		optionalInput(r.FormValue("publication_year")))
 	if err != nil {
