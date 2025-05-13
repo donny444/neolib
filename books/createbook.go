@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime/multipart"
 	"neolib/database"
 	"net/http"
 	"os"
@@ -30,9 +31,6 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var fileContent []byte
-	fileExtension := ""
-
 	// Retrieve the file from the form data
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
@@ -41,42 +39,9 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Error: ", err)
 			return
 		}
-	} else {
-		if file == nil {
-			fmt.Println("Client did not upload a file")
-		} else {
-			fmt.Println("File uploaded")
-		}
-
-		defer file.Close()
-
-		if fileHeader != nil {
-			fileExtension = filepath.Ext(fileHeader.Filename)
-		}
-
-		// Create a file in the images directory
-		dst, err := os.Create(fmt.Sprintf("./images/%s/%s%s", username, isbn, fileExtension))
-		if err != nil {
-			http.Error(w, "Unable to create the file", http.StatusInternalServerError)
-			return
-		}
-		defer dst.Close()
-
-		// Copy the uploaded file to the destination file
-		_, err = io.Copy(dst, file)
-		if err != nil {
-			http.Error(w, "Unable to save the file", http.StatusInternalServerError)
-			return
-		}
-
-		// Read the uploaded file content into a byte slice
-		fileContent, err = io.ReadAll(file)
-		if err != nil {
-			http.Error(w, "Unable to read the file", http.StatusInternalServerError)
-			fmt.Println("Error: ", err)
-			return
-		}
 	}
+
+	fileContent := createFile(username, isbn, file, fileHeader)
 
 	// Helper function to get pointer to string or nil
 	optionalInput := func(value string) *string {
@@ -117,4 +82,39 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Book created"))
 	result := fmt.Sprintf("Book created with ISBN: %s", isbn)
 	fmt.Println(result)
+}
+
+func createFile(username, isbn string, file multipart.File, fileHeader *multipart.FileHeader) []byte {
+	if file == nil {
+		fmt.Println("Client did not upload a file")
+		return nil
+	}
+	fmt.Println("File uploaded")
+	defer file.Close()
+
+	fileExtension := ""
+	if fileHeader != nil {
+		fileExtension = filepath.Ext(fileHeader.Filename)
+	}
+
+	// Create a file in the images directory
+	dst, err := os.Create(fmt.Sprintf("./images/%s/%s%s", username, isbn, fileExtension))
+	if err != nil {
+		log.Fatal("Unable to create the file: ", err)
+	}
+	defer dst.Close()
+
+	// Copy the uploaded file to the destination file
+	_, err = io.Copy(dst, file)
+	if err != nil {
+		log.Fatal("Unable to save the file: ", err)
+	}
+
+	// Read the uploaded file content into a byte slice
+	fileContent, err := io.ReadAll(file)
+	if err != nil {
+		log.Fatal("Unable to read the file: ", err)
+	}
+
+	return fileContent
 }
