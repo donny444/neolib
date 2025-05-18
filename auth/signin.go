@@ -33,7 +33,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	user, err := database.FindUser(ctx, usernameOrEmail)
+	user, err := database.SelectUser(ctx, usernameOrEmail, usernameOrEmail)
 	if err != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		fmt.Println("Invalid credentials")

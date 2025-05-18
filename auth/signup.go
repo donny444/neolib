@@ -3,8 +3,10 @@ package auth
 import (
 	"context"
 	"fmt"
+	"log"
 	"neolib/database"
 	"net/http"
+	"os"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -31,32 +33,27 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err = database.FindUser(ctx, username)
+	_, err = database.SelectUser(ctx, username, email)
 	if err != nil {
-		http.Error(w, "Username already used", http.StatusConflict)
-		fmt.Println("Username already used")
-		return
-	}
-
-	_, err = database.FindUser(ctx, email)
-	if err != nil {
-		http.Error(w, "Email already exists", http.StatusInternalServerError)
-		fmt.Println("Email already exists")
+		http.Error(w, "Username or email already been used", http.StatusBadRequest)
 		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		http.Error(w, "Unable to hash password", http.StatusInternalServerError)
-		fmt.Println("Unable to hash password")
-		return
+		log.Fatal("Unable to hash password: ", err)
 	}
 
-	err = database.CreateUser(ctx, username, email, string(hashedPassword))
+	err = database.InsertUser(ctx, username, email, string(hashedPassword))
 	if err != nil {
-		http.Error(w, "Unable to create user", http.StatusInternalServerError)
-		fmt.Println("Unable to create user")
-		return
+		log.Fatal("Unable to create user: ", err)
+	}
+
+	// Create a directory for the user at /images/[username] path
+	userDir := fmt.Sprintf("./images/%s", username)
+	err = os.Mkdir(userDir, 0755)
+	if err != nil {
+		log.Fatal("Unable to create user directory: ", err)
 	}
 
 	w.WriteHeader(http.StatusCreated)

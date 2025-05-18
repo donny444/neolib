@@ -3,14 +3,13 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
 )
 
 func SelectBooks(ctx context.Context, category *string, username string) (*sql.Rows, error) {
-	// username := r.Context()
-	// username := ctx.Value()
 	if category != nil {
-		return db.QueryContext(ctx, "SELECT isbn, title FROM ? WHERE category = ?", username, *category)
+		return db.QueryContext(ctx, fmt.Sprintf("SELECT isbn, title FROM `%s_view` WHERE category = ?", username), *category)
 	} else {
-		return db.QueryContext(ctx, "SELECT isbn, title FROM ?", username)
+		return db.QueryContext(ctx, fmt.Sprintf("SELECT isbn, title FROM `%s_view`", username))
 	}
 }

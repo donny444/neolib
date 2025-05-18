@@ -3,21 +3,20 @@ package database
 import (
 	"context"
 	"fmt"
+	"log"
 )
 
-func CreateUser(ctx context.Context, username string, email string, password string) error {
+func InsertUser(ctx context.Context, username string, email string, password string) error {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		fmt.Println("Error starting transaction:", err)
-		return err
+		log.Fatal("Error starting transaction: ", err)
 	}
 
 	// Insert user into the users table
-	_, err = tx.ExecContext(ctx, fmt.Sprintf("INSERT INTO users (username, email, password) VALUES ('%s', '%s', '%s')", username, email, password))
+	_, err = tx.ExecContext(ctx, "INSERT INTO users (username, email, password) VALUES (?, ?, ?)", username, email, password)
 	if err != nil {
-		fmt.Println("Error inserting user:", err)
 		tx.Rollback()
-		return err
+		log.Fatal("Error inserting user: ", err)
 	}
 
 	// Create a table for the user
@@ -35,23 +34,21 @@ func CreateUser(ctx context.Context, username string, email string, password str
 		"`updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()) "+
 		"ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;", username))
 	if err != nil {
-		fmt.Println("Error creating user table:", err)
 		tx.Rollback()
-		return err
+		log.Fatal("Error creating user table: ", err)
 	}
 
 	// Create a view for the user
 	_, err = tx.ExecContext(ctx, fmt.Sprintf("CREATE VIEW `%s_view` AS SELECT * FROM `%s`", username, username))
 	if err != nil {
-		fmt.Println("Error creating user view:", err)
 		tx.Rollback()
-		return err
+		log.Fatal("Error creating user view: ", err)
 	}
 
 	// Commit the transaction
 	if err = tx.Commit(); err != nil {
-		fmt.Println("Error committing transaction:", err)
-		return err
+		tx.Rollback()
+		log.Fatal("Error committing transaction: ", err)
 	}
 
 	return nil
