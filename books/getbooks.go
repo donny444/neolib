@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func GetBooks(w http.ResponseWriter, r *http.Request) {
+func GetBooks(w http.ResponseWriter, r *http.Request) error {
 	fmt.Println("GetBooks function get called")
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -25,23 +25,29 @@ func GetBooks(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	category := r.URL.Query().Get("category")
+	title := r.URL.Query().Get("searchTerm")
 
 	var categoryPtr *string
 	if category != "" {
 		categoryPtr = &category
 	}
 
-	rows, err := database.SelectBooks(ctx, categoryPtr, username)
+	var titlePtr *string
+	if title != "" {
+		titlePtr = &title
+	}
+
+	rows, err := database.SelectBooks(ctx, categoryPtr, titlePtr, username)
 	if err != nil {
-		fmt.Println("Unable to get the books")
-		log.Fatal(err)
+		log.Fatal("Unable to get the books: ", err)
+		return err
 	}
 	defer rows.Close()
 
 	columns, err := rows.Columns()
 	if err != nil {
-		fmt.Println("Unable to get the columns")
-		log.Fatal(err)
+		log.Fatal("Unable to get the columns: ", err)
+		return err
 	}
 	fmt.Println("Columns: ", columns)
 
@@ -49,24 +55,27 @@ func GetBooks(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var book types.Books
 		if err := rows.Scan(&book.ISBN, &book.Title); err != nil {
-			fmt.Println("Unable to scan the row")
-			log.Fatal(err)
+			log.Fatal("Unable to scan the row: ", err)
+			return err
 		}
 		books = append(books, book)
 	}
 
 	tmpl, err := template.ParseFiles("templates/books.tmpl")
 	if err != nil {
-		fmt.Println("Unable to load the template")
-		log.Fatal(err)
+		log.Fatal("Unable to load the template: ", err)
+		return err
 	}
 
 	if err := tmpl.Execute(w, books); err != nil {
-		fmt.Println("Unable to execute the template")
-		log.Fatal(err)
+		log.Fatal("Unable to execute the template ", err)
+		return err
 	}
 
 	// w.Write([]byte("Retrieved all books")
 	w.WriteHeader(http.StatusOK)
-	fmt.Println("Retrieved all books in the system")
+	fmt.Println("Retrieved all the books that passed the searching criteria")
+
+	// return nil to indicate no error occurred
+	return nil
 }
