@@ -21,17 +21,19 @@ func InsertUser(ctx context.Context, username string, email string, password str
 
 	// Create a table for the user
 	_, err = tx.ExecContext(ctx, fmt.Sprintf("CREATE TABLE `%s` ( "+
-		"`title` varchar(255) NOT NULL, "+
-		"`publisher` varchar(255) DEFAULT NULL, "+
-		"`category` varchar(255) DEFAULT NULL, "+
-		"`author` varchar(255) DEFAULT NULL, "+
-		"`pages` smallint(5) UNSIGNED DEFAULT NULL, "+
-		"`language` varchar(255) DEFAULT NULL, "+
-		"`publication_year` year(4) DEFAULT NULL, "+
-		"`isbn` varchar(20) NOT NULL, "+
-		"`file` blob DEFAULT NULL, "+
-		"`created_at` timestamp NOT NULL DEFAULT current_timestamp(), "+
-		"`updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()) "+
+		"`title` VARCHAR(255) NOT NULL, "+
+		"`publisher` VARCHAR(255) DEFAULT NULL, "+
+		"`category` VARCHAR(255) DEFAULT NULL, "+
+		"`author` VARCHAR(255) DEFAULT NULL, "+
+		"`pages` SMALLINT(5) UNSIGNED DEFAULT NULL, "+
+		"`language` VARCHAR(255) DEFAULT NULL, "+
+		"`publication_year` YEAR(4) DEFAULT NULL, "+
+		"`is_read` BOOL DEFAULT 0, "+
+		"`isbn` VARCHAR(20) NOT NULL, "+
+		"`file` BLOB DEFAULT NULL, "+
+		"`path` VARCHAR(32) DEFAULT NULL, "+
+		"`created_at` TIMESTAMP NOT NULL DEFAULT current_timestamp(), "+
+		"`updated_at` TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()) "+
 		"ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;", username))
 	if err != nil {
 		tx.Rollback()
