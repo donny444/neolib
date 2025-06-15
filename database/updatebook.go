@@ -19,3 +19,8 @@ func UpdateBook(ctx context.Context, username string, isbn string, title string,
 	)
 	return err
 }
+
+func UpdateReadStatus(ctx context.Context, username string, isbn string, isRead bool) error {
+	_, err := db.ExecContext(ctx, fmt.Sprintf("UPDATE `%s` SET is_read = ? WHERE isbn = ?", username), isRead, isbn)
+	return err
+}
