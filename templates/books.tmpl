@@ -1,5 +1,6 @@
 {{range .}}
     <div id="{{.ISBN}}" hx-trigger="click" hx-get="/server/books/book?isbn={{.ISBN}}" hx-target="body">
+        <img src="{{.Path}}" alt="Cover image of {{.Title}}">
         <p>Title: {{.Title}}</p>
         <p>ISBN: {{.ISBN}}</p>
         <a href="/{{.ISBN}}">View book details</a>
