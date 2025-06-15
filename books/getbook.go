@@ -33,21 +33,23 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var book types.Books
-	if err := row.Scan(&book.ISBN, &book.Title, &book.Publisher, &book.Category, &book.Author, &book.Pages, &book.Language, &book.PublicationYear); err != nil {
+	if err := row.Scan(&book.Path, &book.ISBN, &book.Title, &book.Publisher, &book.Category, &book.Author, &book.Pages, &book.Language, &book.PublicationYear, &book.IsRead); err != nil {
 		http.Error(w, "Unable to scan the row", http.StatusInternalServerError)
 		fmt.Println("Scan error: ", err)
 		return
 	}
 
 	response := map[string]interface{}{
-		"isbn":            book.ISBN,
-		"title":           book.Title,
-		"publisher":       book.Publisher,
-		"category":        book.Category,
-		"author":          book.Author,
-		"pages":           book.Pages,
-		"language":        book.Language,
-		"publicationYear": book.PublicationYear,
+		"path":             book.Path,
+		"isbn":             book.ISBN,
+		"title":            book.Title,
+		"publisher":        book.Publisher,
+		"category":         book.Category,
+		"author":           book.Author,
+		"pages":            book.Pages,
+		"language":         book.Language,
+		"publication_year": book.PublicationYear,
+		"is_read":          book.IsRead,
 	}
 
 	jsonResponse, err := json.Marshal(response)
