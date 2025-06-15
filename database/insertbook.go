@@ -5,10 +5,23 @@ import (
 	"fmt"
 )
 
-func InsertBook(ctx context.Context, username string, isbn string, title string, publisher *string, category *string, author *string, pages *string, language *string, publicationYear *string, fileContent []byte) error {
+func InsertBook(
+	ctx context.Context,
+	username string,
+	isbn string,
+	title string,
+	publisher *string,
+	category *string,
+	author *string,
+	pages *string,
+	language *string,
+	publicationYear *string,
+	fileContent []byte,
+	path *string,
+) error {
 	_, err := db.ExecContext(ctx, fmt.Sprintf(
-		"INSERT INTO `%s` (isbn, title, publisher, category, author, pages, language, publication_year, file)"+
-			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		"INSERT INTO `%s` (isbn, title, publisher, category, author, pages, language, publication_year, file, path)"+
+			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		username),
 		isbn,
 		title,
@@ -18,6 +31,8 @@ func InsertBook(ctx context.Context, username string, isbn string, title string,
 		pages,
 		language,
 		publicationYear,
-		fileContent)
+		fileContent,
+		path,
+	)
 	return err
 }

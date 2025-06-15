@@ -62,7 +62,15 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// Use the InsertBook function from the database package
+	// Declare and assign the image path if a file was uploaded, otherwise set it to nil
+	var imagePath *string
+	if fileContent != nil {
+		path := fmt.Sprintf("/images/%s/%s", username, isbn)
+		imagePath = &path
+	} else {
+		imagePath = nil
+	}
+
 	err = database.InsertBook(ctx,
 		username,
 		requiredInput(r.FormValue("isbn")),
@@ -73,7 +81,9 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 		optionalInput(r.FormValue("pages")),
 		optionalInput(r.FormValue("language")),
 		optionalInput(r.FormValue("publication_year")),
-		fileContent)
+		fileContent,
+		imagePath,
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
