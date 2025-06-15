@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"neolib/database"
 	"neolib/types"
@@ -68,8 +69,25 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// jsonResponse := map[string]string{
+	// 	"username": credentials.Username,
+	// 	"token": tokenString,
+	// 	"message": "User signed in successfully",
+	// }
+
+	jsonResponse, err := json.Marshal(map[string]string{
+		"username": credentials.Username,
+		"token":    tokenString,
+		"message":  "User signed in successfully",
+	})
+	if err != nil {
+		http.Error(w, "Marshal user credentials to JSON unsuccessfully", http.StatusInternalServerError)
+		fmt.Println("Marshal user credentials to JSON unsuccessfully")
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(tokenString))
+	w.Write(jsonResponse)
 	fmt.Println("User signed in successfully")
 }
 
