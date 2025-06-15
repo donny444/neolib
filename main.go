@@ -42,6 +42,12 @@ func SetupRoutes() {
 
 	bookHandler := http.HandlerFunc(handleBook)
 	http.Handle("/books/{isbn}/", CorsMiddleware(auth.Authentication(auth.Authorization(bookHandler))))
+
+	checkHandler := http.HandlerFunc(books.CheckBook)
+	http.Handle("/books/{isbn}/check/", CorsMiddleware(auth.Authentication(auth.Authorization(checkHandler))))
+
+	advancedHandler := http.HandlerFunc(handleAdvanced)
+	http.Handle("/advanced/{insight}", CorsMiddleware(auth.Authentication(auth.Authorization(advancedHandler))))
 }
 
 func handleBooks(w http.ResponseWriter, r *http.Request) {
@@ -61,10 +67,37 @@ func handleBook(w http.ResponseWriter, r *http.Request) {
 		books.GetBook(w, r)
 		return
 	case http.MethodPut:
+		// if r.PathValue("option") == "check" {
+		// 	books.CheckBook(w, r)
+		// 	return
+		// }
 		books.EditBook(w, r)
 		return
 	case http.MethodDelete:
 		books.DeleteBook(w, r)
+		return
+	}
+}
+
+func handleAdvanced(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if r.PathValue("insight") == "" {
+		http.Error(w, "Missing insight parameter", http.StatusBadRequest)
+		return
+	}
+
+	switch r.PathValue("insight") {
+	case "top-categories":
+		// advanced.GetTopCategories(w, r)
+		return
+	case "language-portions":
+		// advanced.GetLanguagePortions(w, r)
+		return
+	case "read-counts":
+		// advanced.GetReadCounts(w, r)
 		return
 	}
 }
