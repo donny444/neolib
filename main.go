@@ -28,8 +28,8 @@ func CorsMiddleware(handler http.Handler) http.Handler {
 }
 
 func SetupRoutes() {
-	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/", fs)
+	bookImages := http.StripPrefix("/images/", http.FileServer(http.Dir("images")))
+	http.Handle("/images/", bookImages)
 
 	signupHandler := http.HandlerFunc(auth.SignUp)
 	http.Handle("/auth/signup/", CorsMiddleware(signupHandler))
