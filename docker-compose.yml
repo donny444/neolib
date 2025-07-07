@@ -1,0 +1,24 @@
+services:
+  server:
+    build: .
+    container_name: neolib-server
+    ports:
+      - "5000:5000"
+    depends_on:
+      - neolib-mysql
+
+  neolib-mysql:
+    image: mysql:8.0-bookworm
+    container_name: neolib-mysql
+    # restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: neolib
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+    external: true

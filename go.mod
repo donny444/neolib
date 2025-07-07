@@ -1,4 +1,4 @@
-module github.com/donny444/neolib
+module neolib
 
 go 1.22.0
 
