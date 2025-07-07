@@ -10,5 +10,6 @@ type Books struct {
 	Language        *string `json:"language"`
 	PublicationYear *int    `json:"publication_year"`
 	IsRead          *bool   `json:"is_read"`
-	Path            *string
+	Path            string
+	FileExtension   *string `json:"file_extension"`
 }

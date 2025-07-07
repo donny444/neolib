@@ -17,10 +17,10 @@ func InsertBook(
 	language *string,
 	publicationYear *string,
 	fileContent []byte,
-	path *string,
+	fileExtension *string,
 ) error {
 	_, err := db.ExecContext(ctx, fmt.Sprintf(
-		"INSERT INTO `%s` (isbn, title, publisher, category, author, pages, language, publication_year, file, path)"+
+		"INSERT INTO `%s` (isbn, title, publisher, category, author, pages, language, publication_year, file_content, file_extension)"+
 			"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		username),
 		isbn,
@@ -32,7 +32,7 @@ func InsertBook(
 		language,
 		publicationYear,
 		fileContent,
-		path,
+		fileExtension,
 	)
 	return err
 }

@@ -41,7 +41,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fileContent := createFile(username, isbn, file, fileHeader)
+	fileContent, fileExtension := createFile(username, isbn, file, fileHeader)
 
 	// Helper function to get pointer to string or nil
 	optionalInput := func(value string) *string {
@@ -63,13 +63,13 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	// Declare and assign the image path if a file was uploaded, otherwise set it to nil
-	var imagePath *string
-	if fileContent != nil {
-		path := fmt.Sprintf("/images/%s/%s", username, isbn)
-		imagePath = &path
-	} else {
-		imagePath = nil
-	}
+	// var imagePath *string
+	// if fileContent != nil {
+	// 	path := fmt.Sprintf("/images/%s/%s%s", username, isbn, fileExtension)
+	// 	imagePath = &path
+	// } else {
+	// 	imagePath = nil
+	// }
 
 	err = database.InsertBook(ctx,
 		username,
@@ -82,7 +82,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 		optionalInput(r.FormValue("language")),
 		optionalInput(r.FormValue("publication_year")),
 		fileContent,
-		imagePath,
+		optionalInput(fileExtension),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -94,10 +94,10 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(result)
 }
 
-func createFile(username, isbn string, file multipart.File, fileHeader *multipart.FileHeader) []byte {
+func createFile(username, isbn string, file multipart.File, fileHeader *multipart.FileHeader) ([]byte, string) {
 	if file == nil {
 		fmt.Println("Client did not upload a file")
-		return nil
+		return nil, ""
 	}
 	fmt.Println("File uploaded")
 	defer file.Close()
@@ -126,5 +126,5 @@ func createFile(username, isbn string, file multipart.File, fileHeader *multipar
 		log.Fatal("Unable to read the file: ", err)
 	}
 
-	return fileContent
+	return fileContent, fileExtension
 }

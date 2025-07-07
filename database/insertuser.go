@@ -30,8 +30,8 @@ func InsertUser(ctx context.Context, username string, email string, password str
 		"`publication_year` YEAR(4) DEFAULT NULL, "+
 		"`is_read` BOOL DEFAULT 0, "+
 		"`isbn` VARCHAR(20) NOT NULL, "+
-		"`file` BLOB DEFAULT NULL, "+
-		"`path` VARCHAR(32) DEFAULT NULL, "+
+		"`file_content` BLOB DEFAULT NULL, "+
+		"`file_extension` VARCHAR(32) DEFAULT NULL, "+
 		"`created_at` TIMESTAMP NOT NULL DEFAULT current_timestamp(), "+
 		"`updated_at` TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()) "+
 		"ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;", username))

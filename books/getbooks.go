@@ -7,8 +7,11 @@ import (
 	"neolib/database"
 	"neolib/types"
 	"net/http"
+	"os"
 	"text/template"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 func GetBooks(w http.ResponseWriter, r *http.Request) error {
@@ -51,13 +54,23 @@ func GetBooks(w http.ResponseWriter, r *http.Request) error {
 	}
 	fmt.Println("Columns: ", columns)
 
+	err = godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file %v", err)
+		return err
+	}
+	imagePath := os.Getenv("IMAGE_PATH")
+
 	var books []types.Books
 	for rows.Next() {
 		var book types.Books
-		if err := rows.Scan(&book.ISBN, &book.Title, &book.Path); err != nil {
+		var bookExtension string
+		if err := rows.Scan(&book.ISBN, &book.Title, &bookExtension); err != nil {
 			log.Fatal("Unable to scan the row: ", err)
 			return err
 		}
+
+		book.Path = fmt.Sprintf("%s%s/%s%s", imagePath, username, book.ISBN, bookExtension)
 		books = append(books, book)
 	}
 
