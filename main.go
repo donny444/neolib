@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"neolib/advanced"
 	"neolib/auth"
 	"neolib/books"
 	"neolib/database"
@@ -90,15 +91,22 @@ func handleAdvanced(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.PathValue("insight") {
-	case "top-categories":
-		// advanced.GetTopCategories(w, r)
+	case "top-five-categories":
+		advanced.TopFiveCategories(w, r)
 		return
-	case "language-portions":
-		// advanced.GetLanguagePortions(w, r)
+	case "reading-status":
+		advanced.ReadingStatusByCategory(w, r)
 		return
-	case "read-counts":
-		// advanced.GetReadCounts(w, r)
-		return
+		// case "books-by-month":
+		// 	advanced.ReadBooksByMonth(w, r)
+		// 	return
+		// case "language-portions":
+		// 	advanced.GetLanguagePortions(w, r)
+		// 	return
+		// case "read-counts":
+		// 	advanced.GetReadCounts(w, r)
+		// 	return
+		// }
 	}
 }
 
