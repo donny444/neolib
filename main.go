@@ -97,6 +97,9 @@ func handleAdvanced(w http.ResponseWriter, r *http.Request) {
 	case "reading-status":
 		advanced.ReadingStatusByCategory(w, r)
 		return
+	case "books-by-pages":
+		advanced.BooksByPages(w, r)
+		return
 		// case "books-by-month":
 		// 	advanced.ReadBooksByMonth(w, r)
 		// 	return
@@ -106,7 +109,6 @@ func handleAdvanced(w http.ResponseWriter, r *http.Request) {
 		// case "read-counts":
 		// 	advanced.GetReadCounts(w, r)
 		// 	return
-		// }
 	}
 }
 

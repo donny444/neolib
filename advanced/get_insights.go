@@ -37,9 +37,7 @@ func TopFiveCategories(w http.ResponseWriter, r *http.Request) {
 		Category string `json:"category"`
 		Count    int    `json:"count"`
 	}
-
 	var topCategory TopCategory
-
 	var topCategories []TopCategory
 
 	for rows.Next() {
@@ -92,9 +90,7 @@ func ReadingStatusByCategory(w http.ResponseWriter, r *http.Request) {
 		Status   string `json:"status"`
 		Count    int    `json:"count"`
 	}
-
 	var countOfStatus CountOfStatus
-
 	var countsOfStatus []CountOfStatus
 
 	for rows.Next() {
@@ -117,6 +113,58 @@ func ReadingStatusByCategory(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResponse)
 	fmt.Println("Succussfully retrieved counts of status by category in the bookshelf")
+}
+
+func BooksByPages(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("BooksByPages function get called")
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	username, ok := r.Context().Value("username").(string)
+	if !ok || username == "" {
+		http.Error(w, "Internal Server Wrror", http.StatusInternalServerError)
+		log.Fatal("Username not found in context")
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	rows, err := database.BookGroupByPages(ctx, username)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Fatal("Unable to get the books grouped by pages: ", err)
+		return
+	}
+	defer rows.Close()
+
+	type PageGroup struct {
+		PageRange string `json:"page_range"`
+		Count     int    `json:"count"`
+	}
+	var pageGroup PageGroup
+	var pageGroups []PageGroup
+
+	for rows.Next() {
+		if err := rows.Scan(&pageGroup.PageRange, &pageGroup.Count); err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			log.Fatal("Unable to scan the row: ", err)
+			return
+		}
+
+		pageGroups = append(pageGroups, pageGroup)
+	}
+
+	jsonResponse, err := json.Marshal(pageGroups)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Fatal("Unable to marshal response to JSON: ", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
+	fmt.Println("Succussfully retrieved the books grouped by pages in the bookshelf")
 }
 
 /*
